@@ -51,7 +51,7 @@ export async function sendTaxReturnForDocuSign(input: {
   rowId: string;
 }> {
   const appUrl = process.env.NEXT_PUBLIC_APP_URL || "http://localhost:3000";
-  const subject = `${process.env.NEXT_PUBLIC_PRACTICE_NAME || "Tax Practice"} — Sign your ${input.taxYear} tax return`;
+  const subject = `${process.env.NEXT_PUBLIC_PRACTICE_NAME || "Collins Fast Tax"} — Sign your ${input.taxYear} tax return`;
   const docB64 =
     input.documentBase64 ||
     minimalPdfBase64(`${input.taxYear} Tax Return Authorization`, input.clientName);

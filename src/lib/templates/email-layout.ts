@@ -1,6 +1,6 @@
 export function getPracticeConfig() {
   return {
-    name: process.env.PRACTICE_NAME || process.env.NEXT_PUBLIC_PRACTICE_NAME || "Tax Practice",
+    name: process.env.PRACTICE_NAME || process.env.NEXT_PUBLIC_PRACTICE_NAME || "Collins Fast Tax",
     email: process.env.PRACTICE_EMAIL || process.env.FROM_EMAIL || "support@example.com",
     phone: process.env.PRACTICE_PHONE || "",
     address: process.env.PRACTICE_ADDRESS || "",

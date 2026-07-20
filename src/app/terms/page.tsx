@@ -1,7 +1,7 @@
 import Link from "next/link";
 import { Header } from "@/components/header";
 
-const practiceName = process.env.NEXT_PUBLIC_PRACTICE_NAME || "Tax Practice";
+const practiceName = process.env.NEXT_PUBLIC_PRACTICE_NAME || "Collins Fast Tax";
 
 export default function TermsPage() {
   return (

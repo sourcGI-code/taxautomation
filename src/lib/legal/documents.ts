@@ -1,7 +1,7 @@
 const practice = () =>
   process.env.NEXT_PUBLIC_PRACTICE_NAME ||
   process.env.PRACTICE_NAME ||
-  "Tax Practice";
+  "Collins Fast Tax";
 
 const email = () => process.env.PRACTICE_EMAIL || "practice@example.com";
 const phone = () => process.env.PRACTICE_PHONE || "";
