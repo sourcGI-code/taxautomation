@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
+import { firmDisplayName, FIRM } from "@/lib/firm";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -12,11 +13,19 @@ const geistMono = Geist_Mono({
   subsets: ["latin"],
 });
 
-const practiceName = process.env.NEXT_PUBLIC_PRACTICE_NAME || "Tax Practice";
+const practiceName = firmDisplayName();
 
 export const metadata: Metadata = {
-  title: `${practiceName} — Client Portal`,
-  description: "Book appointments, upload documents, and track your tax return status.",
+  title: {
+    default: `${practiceName} | Tax Preparation in Wabash, IN`,
+    template: `%s | ${practiceName}`,
+  },
+  description: `${practiceName} — Ken Collins. Trusted tax preparation at ${FIRM.fullAddress}. Book online, upload documents securely, and track your return.`,
+  openGraph: {
+    title: `${practiceName} | Wabash, Indiana`,
+    description: `Tax preparation with Ken Collins. ${FIRM.rating} Google rating. ${FIRM.fullAddress}.`,
+    type: "website",
+  },
 };
 
 export default function RootLayout({

@@ -98,8 +98,16 @@ export default function BookPage() {
       <Header />
       <main className="flex-1 max-w-3xl mx-auto px-4 py-8 w-full">
         <h1 className="text-2xl font-bold text-slate-900 mb-2">Book an Appointment</h1>
+        <p className="text-slate-600 mb-2">
+          Collins Fast Tax · Ken Collins · 19 E Main St, Wabash, IN
+        </p>
         <p className="text-slate-600 mb-8">
-          Select a time that works for you. You&apos;ll receive a confirmation email with portal access.
+          Select a time that works for you. You&apos;ll receive a confirmation email
+          with secure client access. Questions? Call{" "}
+          <a href="tel:+12609066212" className="text-navy-700 font-medium hover:underline">
+            (260) 906-6212
+          </a>
+          .
         </p>
 
         {step === "slot" && (
