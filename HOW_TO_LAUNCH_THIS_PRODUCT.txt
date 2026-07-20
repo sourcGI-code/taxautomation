@@ -1,0 +1,480 @@
+================================================================================
+  HOW TO LAUNCH TAX PORTAL AS A FULL PRODUCT
+  For real clients, securely, on the real internet
+================================================================================
+
+Last updated to match the actual codebase in this repo (v1.0.0).
+
+WHAT THIS PRODUCT IS
+--------------------
+A single-practice tax firm portal. One firm brand (NEXT_PUBLIC_PRACTICE_NAME).
+Clients of THAT firm can book, upload docs, track status, and e-sign.
+Staff run the practice from /admin.
+
+It is NOT:
+  - Multi-tenant SaaS for selling to hundreds of unrelated firms (would need
+    more architecture: orgs, billing, isolation)
+  - A full tax calculation engine (no Form 1040 math suite)
+  - Automatically "IRS certified" or "SOC 2 certified" without external approval
+
+WHAT "LAUNCHED FOR ANYBODY" MEANS HERE
+--------------------------------------
+Anyone who is a client of your practice can use the public HTTPS site:
+  book → email magic link → portal → intake → docs → status → e-sign
+Staff use /admin every day.
+Data is encrypted and access-controlled.
+
+localhost:3000 = ONLY your laptop while developing. NOT the product launch URL.
+
+
+================================================================================
+PART 1 — WHERE YOU ARE RIGHT NOW (THIS MACHINE)
+================================================================================
+
+WORKING LOCALLY
+  npm run dev  →  http://localhost:3000
+
+ALREADY IN CODE (product features exist)
+  - Public site, booking, login, portal, intake, documents
+  - Staff: dashboard, client detail, settings, sequences, compliance, go-live
+  - Magic-link auth, signed sessions, document encryption
+  - E-sign (in-app) + optional DocuSign
+  - MeF package builder (sandbox unless IRS prod configured)
+  - Cron reminders + maintenance
+  - Publish readiness checks (npm run publish:check)
+
+YOUR .env.local TODAY (keys present)
+  Set: Supabase, SESSION_SECRET, DOCUMENT_ENCRYPTION_KEY, CRON_SECRET,
+       ADMIN_PASSWORD / HASH, practice name/email, APP_URL, FROM_EMAIL
+  EMPTY (blocking real client email/SMS):
+       RESEND_API_KEY
+       TWILIO_ACCOUNT_SID / TWILIO_AUTH_TOKEN / TWILIO_PHONE_NUMBER
+       PRACTICE_PHONE
+  APP_URL is almost certainly http://localhost:3000 → fine for DEV only
+
+DB
+  Run: node scripts/apply-publish-sql.mjs
+  Tables should exist if you applied PUBLISH_APPLY_NOW.sql earlier.
+
+
+================================================================================
+PART 2 — THE ONLY PATH TO A REAL LAUNCH (ORDER MATTERS)
+================================================================================
+
+Think of launch as 6 stages. Do them in order.
+
+
+────────────────────────────────────────────────────────────────────────────────
+STAGE 0 — DECIDE THE PRODUCT SCOPE (15 minutes, non-code)
+────────────────────────────────────────────────────────────────────────────────
+
+Answer these before you spend money/time:
+
+  1. Who uses it?
+     A) Your one tax practice's clients  ← THIS app is built for this
+     B) Many firms each with their own portal  ← NOT built; stop and redesign
+
+  2. How do you file taxes?
+     A) Workflow only: clients use portal; YOU file in Drake/TaxAct/etc.
+     B) You are/will be IRS ERO and want MeF from this app later
+
+  3. How do clients sign?
+     A) In-app ESIGN (built-in, works now)
+     B) DocuSign Certificate of Completion (needs DocuSign account + keys)
+
+Default launch recommendation for fastest real product:
+  Scope A + filing A + signing A, then add B options later.
+
+
+────────────────────────────────────────────────────────────────────────────────
+STAGE 1 — FINISH LOCAL "IT WORKS ON MY MACHINE" (YOU / PROGRAMMER)
+────────────────────────────────────────────────────────────────────────────────
+
+Commands:
+  cd /Users/jaxonmccollum/Documents/Taxautomation
+  npm install
+  npm run dev
+
+1) Database (if not already done)
+   Supabase Dashboard → SQL Editor → paste entire file:
+     supabase/PUBLISH_APPLY_NOW.sql
+   Run it.
+   Verify:
+     node scripts/apply-publish-sql.mjs
+   Expect: All publish tables present
+
+2) Storage
+   Supabase → Storage → bucket name: client-documents
+   MUST be PRIVATE (not public)
+
+3) Secrets in .env.local (generate if weak)
+   openssl rand -hex 32   # SESSION_SECRET
+   openssl rand -hex 32   # DOCUMENT_ENCRYPTION_KEY
+   openssl rand -hex 32   # CRON_SECRET
+
+4) Required local env (minimum)
+   NEXT_PUBLIC_SUPABASE_URL=
+   NEXT_PUBLIC_SUPABASE_ANON_KEY=
+   SUPABASE_SERVICE_ROLE_KEY=
+   SESSION_SECRET=
+   DOCUMENT_ENCRYPTION_KEY=
+   CRON_SECRET=
+   ADMIN_PASSWORD= or ADMIN_PASSWORD_HASH=
+   NEXT_PUBLIC_APP_URL=http://localhost:3000
+   NEXT_PUBLIC_PRACTICE_NAME=
+   PRACTICE_NAME=
+   PRACTICE_EMAIL=
+   FROM_EMAIL=
+
+5) Email for real messages (do this before claiming product works)
+   - Create account at resend.com
+   - Add and verify a domain (DNS records Resend shows)
+   - Put RESEND_API_KEY=re_... in .env.local
+   - FROM_EMAIL= must be on that verified domain
+   Without this: booking "works" but clients get no email (magic links fail in practice)
+
+6) Optional SMS
+   Twilio account → TWILIO_ACCOUNT_SID, TWILIO_AUTH_TOKEN, TWILIO_PHONE_NUMBER
+
+7) Prove software health
+   npm test
+   npm run build
+   npm run publish:check:code
+   curl http://localhost:3000/api/health   (with dev server running)
+
+8) Manual local smoke test (use YOUR email)
+   a. http://localhost:3000/book  → book with legal checkbox
+   b. Check email for portal link (needs Resend)
+   c. Complete intake, upload a PDF
+   d. http://localhost:3000/admin → login → see client → change status
+   e. Set ready_for_signature → sign in portal
+   f. Download doc as staff; log out client; confirm download fails
+
+Local URLs (dev only):
+  Home     http://localhost:3000
+  Book     http://localhost:3000/book
+  Login    http://localhost:3000/login
+  Portal   http://localhost:3000/portal
+  Admin    http://localhost:3000/admin
+  Go-live  http://localhost:3000/admin/go-live
+  Health   http://localhost:3000/api/health
+
+
+────────────────────────────────────────────────────────────────────────────────
+STAGE 2 — PUT IT ON THE INTERNET (YOU / PROGRAMMER)  ← THIS IS THE REAL LAUNCH
+────────────────────────────────────────────────────────────────────────────────
+
+localhost is NOT the product. Production URL is https://something.real
+
+Recommended stack for this repo: Vercel + your domain + same Supabase.
+
+STEP 2.1 — Domain
+  - Buy or use a domain (e.g. portal.yourfirm.com or app.yourfirm.com)
+  - You will point it at Vercel after deploy
+
+STEP 2.2 — Vercel project
+  1. vercel.com → New Project → import this Git repo
+     (or: npm i -g vercel && vercel)
+  2. Framework: Next.js (auto)
+  3. Add EVERY production env var (same as .env.local but):
+       NEXT_PUBLIC_APP_URL=https://YOUR_DOMAIN
+       NODE_ENV will be production on Vercel automatically
+  4. Deploy
+
+STEP 2.3 — Copy these env vars to Vercel Production
+  REQUIRED:
+    NEXT_PUBLIC_SUPABASE_URL
+    NEXT_PUBLIC_SUPABASE_ANON_KEY
+    SUPABASE_SERVICE_ROLE_KEY
+    SESSION_SECRET
+    DOCUMENT_ENCRYPTION_KEY
+    CRON_SECRET
+    ADMIN_PASSWORD or ADMIN_PASSWORD_HASH
+    NEXT_PUBLIC_APP_URL=https://YOUR_DOMAIN
+    NEXT_PUBLIC_PRACTICE_NAME
+    PRACTICE_NAME
+    PRACTICE_EMAIL
+    PRACTICE_PHONE
+    PRACTICE_ADDRESS (optional but good)
+    PRACTICE_TIMEZONE
+    RESEND_API_KEY
+    FROM_EMAIL
+
+  RECOMMENDED:
+    TWILIO_*
+    UPSTASH_REDIS_REST_URL
+    UPSTASH_REDIS_REST_TOKEN
+
+  OPTIONAL later:
+    DOCUSIGN_*
+    IRS_*
+    PUBLISH_GO_LIVE=true  (or use admin UI after deploy)
+
+STEP 2.4 — Attach domain
+  Vercel → Project → Domains → add YOUR_DOMAIN
+  Set DNS as Vercel shows
+  Wait for HTTPS certificate green
+
+STEP 2.5 — Redeploy after domain is live
+  Confirm NEXT_PUBLIC_APP_URL matches exactly:
+    https://portal.yourfirm.com
+  (no trailing slash preferred; no http://; no localhost)
+
+STEP 2.6 — Cron (reminders)
+  vercel.json already schedules:
+    /api/cron/reminders     hourly
+    /api/cron/maintenance   daily
+  Production requires Authorization: Bearer CRON_SECRET
+  (Vercel cron integration: ensure CRON_SECRET is set so unauthorized calls fail)
+
+STEP 2.7 — Production smoke test (same as local, but on HTTPS URL)
+  Book → email → portal → upload → admin → status → sign
+  Open https://YOUR_DOMAIN/api/health
+
+STEP 2.8 — Go-live switch
+  In production, public booking is BLOCKED until go-live is on.
+
+  Option A — Admin UI:
+    https://YOUR_DOMAIN/admin/go-live
+    Check affirmations → Enable go-live
+
+  Option B — Env on Vercel:
+    PUBLISH_AFFIRM_LEGAL_REVIEW=true
+    PUBLISH_AFFIRM_DATA_CONTROLLER=true
+    PUBLISH_AFFIRM_EFILE_POLICY=true
+    PUBLISH_AFFIRM_INSURANCE=true
+    PUBLISH_GO_LIVE=true
+    Then redeploy
+
+  Until go-live is true on PRODUCTION, real public booking returns "not open".
+
+
+────────────────────────────────────────────────────────────────────────────────
+STAGE 3 — SECURITY BASELINE (MUST BEFORE REAL TAX DOCS)
+────────────────────────────────────────────────────────────────────────────────
+
+  [ ] HTTPS only (custom domain)
+  [ ] Private Supabase bucket
+  [ ] Strong SESSION_SECRET + DOCUMENT_ENCRYPTION_KEY (backed up offline)
+  [ ] Strong admin password; never admin123
+  [ ] Service role key never exposed to browser
+  [ ] NEXT_PUBLIC_APP_URL is correct production host (CSRF/origin checks)
+  [ ] Upstash Redis in production multi-region serverless (recommended)
+  [ ] No secrets committed to git
+  [ ] Rotate any secret ever pasted into chat
+  [ ] /api/health shows encryption + secrets OK in production
+
+Document security model already in code:
+  Client → HTTPS → Next.js API → AES-256-GCM encrypt → private Supabase storage
+  Downloads only through authenticated API
+
+
+────────────────────────────────────────────────────────────────────────────────
+STAGE 4 — LEGAL / FIRM (NOT OPTIONAL FOR REAL PEOPLE)
+────────────────────────────────────────────────────────────────────────────────
+
+You as programmer prepare the pages; firm/owner must stand behind them.
+
+  Pages already in app:
+    /privacy
+    /terms
+    /legal/engagement
+    /legal/wisp
+
+  Firm must:
+  [ ] Edit wording for real firm name/address/email (or env-driven text)
+  [ ] Prefer attorney review before collecting real SSNs/docs
+  [ ] Decide e-file policy (portal-only vs authorized MeF)
+  [ ] Insurance (E&O / cyber) as appropriate
+  [ ] Staff training: magic links private, no sharing admin password
+
+  Do NOT advertise:
+    "SOC 2 certified" without a CPA report
+    "IRS approved software" without IRS software certification
+    "Unhackable"
+
+
+────────────────────────────────────────────────────────────────────────────────
+STAGE 5 — OPTIONAL UPGRADES (AFTER CORE LAUNCH WORKS)
+────────────────────────────────────────────────────────────────────────────────
+
+DocuSign (certified CoC):
+  Set DOCUSIGN_* env vars
+  Connect webhook → https://YOUR_DOMAIN/api/webhooks/docusign
+  Staff: client detail → Send DocuSign envelope
+
+IRS MeF production transmit:
+  Only if you are authorized ERO with EFIN/ETIN + gateway
+  Set IRS_* and IRS_MEF_PRODUCTION=true
+  Until then: Build MeF package in admin = packaging/validation only;
+  file via normal tax software
+
+Multi-staff:
+  STAFF_USERS=[{"email":"...","name":"...","password":"...","role":"preparer"}]
+
+
+────────────────────────────────────────────────────────────────────────────────
+STAGE 6 — OPEN TO REAL CLIENTS
+────────────────────────────────────────────────────────────────────────────────
+
+  [ ] Soft launch: 1–3 real/trusted clients
+  [ ] Watch for 1 week (email delivery, uploads, admin workflow)
+  [ ] Then put the booking link on website / email signature / Google Business
+
+  Client journey when live:
+    1. Visit https://YOUR_DOMAIN
+    2. Book appointment (legal consent checkbox)
+    3. Receive email magic link
+    4. Portal → engagement → intake → upload docs
+    5. Staff processes in /admin
+    6. Ready for signature → client signs
+    7. Firm files (authorized process) → mark Filed
+
+
+================================================================================
+PART 3 — YOUR JOB AS THE PROGRAMMER (CHECKLIST YOU OWN)
+================================================================================
+
+LOCAL
+  [ ] Repo runs: npm install && npm run dev
+  [ ] Migrations applied
+  [ ] Bucket private
+  [ ] Secrets strong
+  [ ] Resend working (test email arrives)
+  [ ] Full smoke test on localhost
+  [ ] npm test && npm run build pass
+
+PRODUCTION
+  [ ] Vercel (or host) project created
+  [ ] All production env vars set
+  [ ] NEXT_PUBLIC_APP_URL=https://YOUR_DOMAIN  (not localhost)
+  [ ] Domain + HTTPS green
+  [ ] Cron secret working
+  [ ] Smoke test on HTTPS URL
+  [ ] Health endpoint OK
+  [ ] Go-live enabled (with firm owner approval)
+  [ ] Soft launch monitored
+
+NOT ONLY YOURS (coordinate)
+  [ ] Legal wording sign-off
+  [ ] Insurance
+  [ ] ERO/MeF if they want IRS transmit from app
+  [ ] DocuSign paid account if they want CoC
+
+
+================================================================================
+PART 4 — WHAT "HE SAID LOCALHOST:3000" MEANS
+================================================================================
+
+If someone says the product URL is http://localhost:3000:
+
+  TRUE:  The developer can open it while npm run dev is running on that PC.
+  FALSE: Clients on the internet can use it.
+  FALSE: It is production-ready hosting.
+  FALSE: Magic-link emails pointing at localhost work for other people.
+
+Tell them (and yourself):
+  "Localhost is the workshop. Production is https://our-domain.com after Vercel
+   deploy. Until that URL works, we have not launched."
+
+
+================================================================================
+PART 5 — MONEY / ACCOUNTS YOU NEED TO CREATE
+================================================================================
+
+| Account    | Why                         | Required to launch?      |
+|------------|-----------------------------|--------------------------|
+| Supabase   | DB + private file storage   | YES                      |
+| Vercel     | Host Next.js app            | YES (or equivalent host) |
+| Domain     | Real HTTPS URL              | YES for public clients   |
+| Resend     | Email + magic links         | YES for real use         |
+| Twilio     | SMS                         | Strongly recommended     |
+| Upstash    | Rate limits multi-instance  | Recommended on Vercel    |
+| DocuSign  | Certified e-sign             | Optional                 |
+| IRS ERO    | Direct MeF to IRS           | Optional / regulated     |
+
+
+================================================================================
+PART 6 — VERIFY COMMANDS (RUN THESE)
+================================================================================
+
+  npm test
+  npm run build
+  npm run publish:check:code
+  node scripts/apply-publish-sql.mjs
+  npm run publish:check          # after DB + go-live flags
+
+  With server running:
+    open http://localhost:3000/api/health
+  After deploy:
+    open https://YOUR_DOMAIN/api/health
+
+
+================================================================================
+PART 7 — FASTEST PATH FROM TODAY TO LIVE (ORDERED)
+================================================================================
+
+  1. Fill RESEND_API_KEY + verify domain → prove email works on localhost
+  2. Full smoke test on localhost
+  3. Create Vercel project + paste all env vars
+  4. Set NEXT_PUBLIC_APP_URL=https://YOUR_DOMAIN
+  5. Add domain DNS → HTTPS
+  6. Deploy
+  7. Smoke test on production URL
+  8. Admin → Go live (affirmations)
+  9. Soft launch 1–3 clients
+  10. Public booking link everywhere
+
+That is the full product launch. Everything else is polish or regulated extras.
+
+
+================================================================================
+PART 8 — ROUTES MAP (WHAT THE PRODUCT CONTAINS)
+================================================================================
+
+PUBLIC
+  /                 marketing home
+  /book             book appointment
+  /login            magic-link request
+  /privacy /terms
+  /legal/engagement /legal/wisp
+
+CLIENT (after auth)
+  /portal
+  /portal/intake
+  /portal/documents
+
+STAFF
+  /admin                 login
+  /admin/dashboard       clients + stats
+  /admin/clients/[id]    pipeline, notes, DocuSign, MeF
+  /admin/settings        hours / blocked dates
+  /admin/sequences       automation map
+  /admin/compliance      control readiness
+  /admin/go-live         publish gate
+
+API (selected)
+  /api/health
+  /api/booking
+  /api/auth/login | verify
+  /api/portal/*
+  /api/admin/*
+  /api/cron/reminders | maintenance
+  /api/webhooks/docusign | cal
+
+
+================================================================================
+PART 9 — ONE RULE
+================================================================================
+
+Do not tell anyone the product is "launched for real people" until:
+
+  https://YOUR_DOMAIN works,
+  email delivers magic links,
+  smoke test passed on that domain,
+  go-live is ON,
+  and you are not relying on localhost:3000.
+
+================================================================================
+END
+================================================================================

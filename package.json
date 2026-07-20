@@ -1,26 +1,54 @@
 {
   "name": "tax-portal",
-  "version": "0.1.0",
+  "version": "1.0.0",
   "private": true,
   "scripts": {
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
-    "lint": "eslint"
+    "lint": "eslint",
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "setup": "node scripts/setup.mjs",
+    "setup:check": "node scripts/setup.mjs",
+    "setup:seed": "node scripts/setup.mjs --seed",
+    "cron:reminders": "node scripts/run-cron.mjs",
+    "db:migrate": "node scripts/migrate.mjs",
+    "db:storage": "node scripts/setup-storage.mjs",
+    "publish:check": "node scripts/publish-check.mjs",
+    "publish:check:code": "node scripts/publish-check.mjs --code-only",
+    "prepublishOnly": "npm test && npm run publish:check:code && npm run build"
   },
   "dependencies": {
+    "@supabase/ssr": "^0.12.1",
+    "@supabase/supabase-js": "^2.110.3",
+    "clsx": "^2.1.1",
+    "date-fns": "^4.4.0",
+    "date-fns-tz": "^3.2.0",
+    "lucide-react": "^1.24.0",
     "next": "16.2.10",
+    "postgres": "^3.4.9",
     "react": "19.2.4",
-    "react-dom": "19.2.4"
+    "react-dom": "19.2.4",
+    "resend": "^6.17.2",
+    "tailwind-merge": "^3.6.0",
+    "twilio": "^6.0.2",
+    "uuid": "^14.0.1",
+    "zod": "^4.4.3"
   },
   "devDependencies": {
     "@tailwindcss/postcss": "^4",
     "@types/node": "^20",
     "@types/react": "^19",
     "@types/react-dom": "^19",
+    "@types/uuid": "^10.0.0",
+    "@vitejs/plugin-react": "^6.0.3",
     "eslint": "^9",
     "eslint-config-next": "16.2.10",
+    "jsdom": "^29.1.1",
     "tailwindcss": "^4",
-    "typescript": "^5"
+    "typescript": "^5",
+    "vite-tsconfig-paths": "^6.1.1",
+    "vitest": "^4.1.10"
   }
 }

@@ -1,0 +1,133 @@
+================================================================================
+  YOU ARE HERE — NEXT STEPS TO PUBLIC LAUNCH
+  (PUBLISH_APPLY_NOW.sql already done ✓)
+================================================================================
+
+DONE
+  [x] Database tables (PUBLISH_APPLY_NOW)
+  [x] Storage bucket client-documents
+  [x] Core secrets (session, encryption, cron, admin)
+  [x] Supabase connected
+  [x] Practice name + email set
+
+NOT DONE YET (in order — do these next)
+
+  STEP 1  Email that actually sends .................. YOU (15–30 min)
+  STEP 2  Local end-to-end smoke test ............... YOU (20 min)
+  STEP 3  Deploy to Vercel + real domain ............ YOU (30–60 min)
+  STEP 4  Production env + HTTPS URL ................ YOU
+  STEP 5  Production smoke test ..................... YOU
+  STEP 6  Go-live switch (open public booking) ...... YOU + firm owner
+  STEP 7  Soft launch 1–3 people .................... YOU
+
+================================================================================
+STEP 1 — RESEND (required — your RESEND_API_KEY is empty)
+================================================================================
+
+Without this, clients never get magic-link emails. The site “works” but people
+cannot log in from email.
+
+1. Go to https://resend.com and create an account
+2. Add a domain you own (or use their test domain only for yourself)
+3. Add the DNS records Resend shows (SPF/DKIM)
+4. Create an API key
+5. Put in .env.local:
+
+     RESEND_API_KEY=re_xxxxxxxx
+     FROM_EMAIL=onboarding@your-verified-domain.com
+
+   FROM_EMAIL must match a domain Resend has verified.
+
+6. Restart:  npm run dev
+7. Book a test appointment with YOUR real email — message must arrive
+
+Optional later: Twilio for SMS (not required to launch email-first).
+
+
+================================================================================
+STEP 2 — LOCAL SMOKE TEST (prove the product works)
+================================================================================
+
+  npm run dev
+  open http://localhost:3000
+
+  [ ] Home loads with your practice name
+  [ ] /book → pick slot → accept legal checkbox → confirm
+  [ ] Email arrives with portal link
+  [ ] Open portal → intake → upload a small PDF
+  [ ] /admin → login with admin password
+  [ ] See client → change status
+  [ ] Set “Ready for signature” → sign in portal
+  [ ] Staff can download the PDF
+
+  npm test
+  npm run build
+
+
+================================================================================
+STEP 3 — DEPLOY (public internet)
+================================================================================
+
+1. Push code to GitHub (if not already)
+2. https://vercel.com → New Project → import repo
+3. Add ALL env vars from .env.local to Vercel Production
+4. IMPORTANT change for production:
+
+     NEXT_PUBLIC_APP_URL=https://YOUR_DOMAIN
+
+   NOT http://localhost:3000
+
+5. Deploy
+6. Domains → add your domain → set DNS → wait for HTTPS
+
+
+================================================================================
+STEP 4 — PRODUCTION CHECK
+================================================================================
+
+  open https://YOUR_DOMAIN
+  open https://YOUR_DOMAIN/api/health
+  Repeat smoke test on the HTTPS URL (not localhost)
+
+
+================================================================================
+STEP 5 — GO LIVE (open booking to the public)
+================================================================================
+
+Production blocks public booking until go-live is enabled.
+
+  open https://YOUR_DOMAIN/admin/go-live
+
+  Check:
+    [ ] Legal review (privacy/terms/engagement OK for your firm)
+    [ ] Firm is data controller / responsible preparer
+    [ ] E-file policy understood (sandbox ≠ real IRS filing)
+    [ ] Insurance (recommended)
+  Click: Enable go-live
+
+  Or set on Vercel and redeploy:
+    PUBLISH_AFFIRM_LEGAL_REVIEW=true
+    PUBLISH_AFFIRM_DATA_CONTROLLER=true
+    PUBLISH_AFFIRM_EFILE_POLICY=true
+    PUBLISH_GO_LIVE=true
+
+
+================================================================================
+STEP 6 — SOFT LAUNCH THEN PUBLIC
+================================================================================
+
+  [ ] 1–3 trusted real clients first
+  [ ] Watch email + uploads for a few days
+  [ ] Then put https://YOUR_DOMAIN/book on your website / social / email
+
+
+================================================================================
+WHAT YOU DO RIGHT NOW (this minute)
+================================================================================
+
+  >>>  Create Resend account, set RESEND_API_KEY + FROM_EMAIL, restart dev,
+       book a test appointment, confirm the email arrives.  <<<
+
+When that works, say “email works” and we do Step 2–3 together (smoke test + Vercel).
+
+================================================================================

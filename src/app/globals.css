@@ -1,26 +1,58 @@
 @import "tailwindcss";
 
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
+  --background: #f8fafc;
+  --foreground: #0f172a;
+  --navy-50: #f0f4f8;
+  --navy-100: #d9e2ec;
+  --navy-500: #486581;
+  --navy-700: #1e3a5f;
+  --navy-800: #102a43;
 }
 
 @theme inline {
   --color-background: var(--background);
   --color-foreground: var(--foreground);
+  --color-navy-50: var(--navy-50);
+  --color-navy-100: var(--navy-100);
+  --color-navy-500: var(--navy-500);
+  --color-navy-700: var(--navy-700);
+  --color-navy-800: var(--navy-800);
   --font-sans: var(--font-geist-sans);
   --font-mono: var(--font-geist-mono);
-}
-
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
 }
 
 body {
   background: var(--background);
   color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  font-family: var(--font-sans), system-ui, sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/* Focus visibility for keyboard users */
+:focus-visible {
+  outline: 2px solid var(--navy-700);
+  outline-offset: 2px;
+}
+
+/* Smooth selection */
+::selection {
+  background: color-mix(in srgb, var(--navy-700) 18%, white);
+}
+
+/* Subtle page enter */
+@keyframes fade-in {
+  from {
+    opacity: 0;
+    transform: translateY(4px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+main {
+  animation: fade-in 0.25s ease-out;
 }

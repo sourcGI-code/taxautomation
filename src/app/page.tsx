@@ -1,65 +1,215 @@
-import Image from "next/image";
+import Link from "next/link";
+import { Header } from "@/components/header";
+import { Button } from "@/components/ui/button";
+import { Card, CardContent } from "@/components/ui/card";
+import {
+  Calendar,
+  FileText,
+  Bell,
+  MessageSquare,
+  Shield,
+  Clock,
+  Lock,
+  CheckCircle2,
+  Sparkles,
+} from "lucide-react";
 
-export default function Home() {
+const practiceName = process.env.NEXT_PUBLIC_PRACTICE_NAME || "Tax Practice";
+
+export default function HomePage() {
   return (
-    <div className="flex flex-col flex-1 items-center justify-center bg-zinc-50 font-sans dark:bg-black">
-      <main className="flex flex-1 w-full max-w-3xl flex-col items-center justify-between py-32 px-16 bg-white dark:bg-black sm:items-start">
-        <Image
-          className="dark:invert"
-          src="/next.svg"
-          alt="Next.js logo"
-          width={100}
-          height={20}
-          priority
-        />
-        <div className="flex flex-col items-center gap-6 text-center sm:items-start sm:text-left">
-          <h1 className="max-w-xs text-3xl font-semibold leading-10 tracking-tight text-black dark:text-zinc-50">
-            To get started, edit the page.tsx file.
-          </h1>
-          <p className="max-w-md text-lg leading-8 text-zinc-600 dark:text-zinc-400">
-            Looking for a starting point or more instructions? Head over to{" "}
-            <a
-              href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
-            >
-              Templates
-            </a>{" "}
-            or the{" "}
-            <a
-              href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
-            >
-              Learning
-            </a>{" "}
-            center.
-          </p>
-        </div>
-        <div className="flex flex-col gap-4 text-base font-medium sm:flex-row">
-          <a
-            className="flex h-12 w-full items-center justify-center gap-2 rounded-full bg-foreground px-5 text-background transition-colors hover:bg-[#383838] dark:hover:bg-[#ccc] md:w-[158px]"
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <Image
-              className="dark:invert"
-              src="/vercel.svg"
-              alt="Vercel logomark"
-              width={16}
-              height={16}
-            />
-            Deploy Now
-          </a>
-          <a
-            className="flex h-12 w-full items-center justify-center rounded-full border border-solid border-black/[.08] px-5 transition-colors hover:border-transparent hover:bg-black/[.04] dark:border-white/[.145] dark:hover:bg-[#1a1a1a] md:w-[158px]"
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Documentation
-          </a>
-        </div>
+    <>
+      <Header />
+      <main className="flex-1">
+        <section className="relative overflow-hidden bg-gradient-to-br from-navy-800 via-navy-700 to-[#1a4a6e] text-white">
+          <div className="absolute inset-0 opacity-20 bg-[radial-gradient(circle_at_30%_20%,#fff_0%,transparent_50%)]" />
+          <div className="relative max-w-6xl mx-auto px-4 py-20 md:py-28 text-center">
+            <p className="inline-flex items-center gap-2 text-xs font-semibold tracking-wider uppercase text-navy-100 bg-white/10 rounded-full px-3 py-1 mb-6">
+              <Sparkles className="w-3.5 h-3.5" />
+              Secure client portal
+            </p>
+            <h1 className="text-4xl md:text-6xl font-bold mb-5 tracking-tight">
+              Tax prep, fully connected
+            </h1>
+            <p className="text-lg md:text-xl text-navy-100 max-w-2xl mx-auto mb-10 leading-relaxed">
+              Book online, complete intake, upload documents with encryption at rest,
+              e-sign when ready, and track every step — without chasing email threads.
+            </p>
+            <div className="flex flex-col sm:flex-row gap-4 justify-center">
+              <Link href="/book">
+                <Button
+                  size="lg"
+                  className="bg-white text-navy-800 hover:bg-navy-50 w-full sm:w-auto shadow-lg"
+                >
+                  <Calendar className="w-5 h-5" />
+                  Book appointment
+                </Button>
+              </Link>
+              <Link href="/login">
+                <Button
+                  size="lg"
+                  variant="outline"
+                  className="border-white/40 text-white hover:bg-white/10 w-full sm:w-auto"
+                >
+                  Client portal login
+                </Button>
+              </Link>
+            </div>
+            <div className="mt-12 flex flex-wrap justify-center gap-6 text-sm text-navy-100">
+              {[
+                "AES-256 document encryption",
+                "Magic-link client login",
+                "Email + SMS status updates",
+                "ESIGN-ready authorizations",
+              ].map((item) => (
+                <span key={item} className="inline-flex items-center gap-2">
+                  <CheckCircle2 className="w-4 h-4 text-emerald-300" />
+                  {item}
+                </span>
+              ))}
+            </div>
+          </div>
+        </section>
+
+        <section className="max-w-6xl mx-auto px-4 py-16 md:py-20">
+          <div className="text-center mb-12">
+            <h2 className="text-2xl md:text-3xl font-bold text-slate-900 mb-3">
+              Everything in one place
+            </h2>
+            <p className="text-slate-600 max-w-xl mx-auto">
+              Built for modern tax practices that want client experience and ops
+              tooling on the same rails.
+            </p>
+          </div>
+          <div className="grid md:grid-cols-3 gap-6">
+            {[
+              {
+                icon: Calendar,
+                title: "24/7 online booking",
+                desc: "Availability rules, blocked dates, conflict detection, and instant confirmations.",
+              },
+              {
+                icon: FileText,
+                title: "Secure document vault",
+                desc: "Private storage, magic-byte validation, encrypted at rest before upload.",
+              },
+              {
+                icon: Bell,
+                title: "Live status pipeline",
+                desc: "From booked to filed — clients always know where their return stands.",
+              },
+              {
+                icon: MessageSquare,
+                title: "Automated sequences",
+                desc: "Welcome, intake, document, and appointment reminders via email and SMS.",
+              },
+              {
+                icon: Shield,
+                title: "Electronic signatures",
+                desc: "ESIGN Act consent capture, in-portal signature audit trail, and optional DocuSign envelopes.",
+              },
+              {
+                icon: Clock,
+                title: "Less back-and-forth",
+                desc: "Intake and uploads before the meeting. Staff dashboard for notes and calls.",
+              },
+            ].map((feature) => (
+              <Card
+                key={feature.title}
+                className="hover:shadow-md hover:border-navy-200 transition-all duration-200"
+              >
+                <CardContent className="pt-6">
+                  <div className="w-11 h-11 rounded-xl bg-navy-50 flex items-center justify-center mb-4">
+                    <feature.icon className="w-5 h-5 text-navy-700" />
+                  </div>
+                  <h3 className="font-semibold text-slate-900 mb-2">
+                    {feature.title}
+                  </h3>
+                  <p className="text-sm text-slate-600 leading-relaxed">
+                    {feature.desc}
+                  </p>
+                </CardContent>
+              </Card>
+            ))}
+          </div>
+        </section>
+
+        <section className="bg-slate-900 text-white">
+          <div className="max-w-6xl mx-auto px-4 py-14 grid md:grid-cols-3 gap-8">
+            {[
+              {
+                icon: Lock,
+                title: "Built for real tax data",
+                desc: "Encrypted document vault, signed sessions, rate limits, CSP/HSTS, private storage only.",
+              },
+              {
+                icon: Shield,
+                title: "Firm operations",
+                desc: "Staff roles, preparer assignment, go-live checklist, WISP + engagement letter, audit exports.",
+              },
+              {
+                icon: FileText,
+                title: "Accountable by design",
+                desc: "Consent records, e-sign evidence, activity logs, and MeF package validation before any transmit.",
+              },
+            ].map((item) => (
+              <div key={item.title} className="flex gap-4">
+                <item.icon className="w-8 h-8 text-navy-100 shrink-0" />
+                <div>
+                  <h3 className="font-semibold mb-1">{item.title}</h3>
+                  <p className="text-sm text-slate-300 leading-relaxed">
+                    {item.desc}
+                  </p>
+                </div>
+              </div>
+            ))}
+          </div>
+        </section>
+
+        <section className="bg-white border-t border-slate-200">
+          <div className="max-w-6xl mx-auto px-4 py-16 text-center">
+            <h2 className="text-2xl font-bold mb-4 text-slate-900">
+              Ready when you are
+            </h2>
+            <p className="text-slate-600 mb-8 max-w-lg mx-auto">
+              Start with an appointment, or sign in if you already work with{" "}
+              {practiceName}.
+            </p>
+            <div className="flex flex-col sm:flex-row gap-3 justify-center">
+              <Link href="/book">
+                <Button size="lg">
+                  <Calendar className="w-5 h-5" />
+                  Book your appointment
+                </Button>
+              </Link>
+              <Link href="/login">
+                <Button size="lg" variant="outline">
+                  Open client portal
+                </Button>
+              </Link>
+            </div>
+          </div>
+        </section>
       </main>
-    </div>
+
+      <footer className="border-t border-slate-200 bg-slate-50 py-10">
+        <div className="max-w-6xl mx-auto px-4 flex flex-col md:flex-row items-center justify-between gap-4 text-sm text-slate-500">
+          <p>
+            © {new Date().getFullYear()} {practiceName}. All rights reserved.
+          </p>
+          <div className="flex gap-4">
+            <Link href="/privacy" className="hover:text-navy-700">
+              Privacy
+            </Link>
+            <Link href="/terms" className="hover:text-navy-700">
+              Terms
+            </Link>
+            <Link href="/login" className="hover:text-navy-700">
+              Client login
+            </Link>
+          </div>
+        </div>
+      </footer>
+    </>
   );
 }
